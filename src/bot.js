@@ -42,7 +42,7 @@ client.on('ready', () => {
           }
           
           if(name.length > 24) {
-            member.setNickname("3.00/5", "name too long");
+            member.setNickname("Member: 3.00/5", "name too long");
           }
           else{
             member.setNickname(name + ": 3.00/5", "default rating");
@@ -52,6 +52,22 @@ client.on('ready', () => {
     });
   });
 });
+
+/*client.on('guildMemberUpdate', (oldMember, newMember) => {
+  if(oldMember.nickname == null || oldMember.nickname == newMember.nickname) {
+    return;
+  }
+
+  console.log(oldMember.nickname);
+  let suffix = oldMember.nickname.substring(oldMember.nickname.length - 8);
+
+  if(newMember.nickname.length > 24) {
+    newMember.setNickname("Member" + suffix, "new nickname too long");
+  }
+  else {
+    newMember.setNickname(newMember.nicknam + suffix, "rating applied");
+  }
+});*/
 
 client.on('message', message => {
   if(message.author.id == 177914322561925120) {
@@ -141,8 +157,9 @@ client.on('messageReactionAdd', (reaction, rater) => {
             let avg = user.total / user.count;
             
             let name = reaction.message.member.nickname;
+            console.log(name);
             let newName = name.substring(0, name.length - 8) + ": " + avg.toFixed(2) + "/5";
-            member.setNickname(newName, "rating update");
+            reaction.message.member.setNickname(newName, "rating update");
 
             console.log(rater.username + " rated " + reaction.message.author.username + "'s message with a " + reaction.emoji.identifier[0]);
           });
