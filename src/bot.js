@@ -35,6 +35,18 @@ client.on('ready', () => {
 
         newUser.save(err => {
           if(err) return console.error(err);
+
+          let name = member.nickname;
+          if(member.nickname == null) {
+            name = member.user.username;
+          }
+          
+          if(name.length > 24) {
+            member.setNickname("3.00/5", "name too long");
+          }
+          else{
+            member.setNickname(name + ": 3.00/5", "default rating");
+          }
         });
       });
     });
@@ -73,15 +85,10 @@ client.on('message', message => {
         console.log("Message added to " + user.username);
       });
 
-      message.react("1%E2%83%A3").then(
-        message.react("2%E2%83%A3").then(
-          message.react("3%E2%83%A3").then(
-            message.react("4%E2%83%A3").then(
-              message.react("5%E2%83%A3")
-            )
-          )
-        )
-      );
+      for(i = 1; i <= 5; i++) {
+        let k = i;
+        setTimeout(() => message.react(k + "%E2%83%A3"), 500*(k-1));
+      }
     });
   }
 });
@@ -103,7 +110,7 @@ client.on('messageReactionAdd', (reaction, rater) => {
     // rate
     User.findOne({ 'id': reaction.message.author.id}, (err, user) => {
       if(err) return console.error(err);
-      if(user == null) return console.log(rater.username + "tried to rate a user not in the database!");
+      if(user == null) return console.log(rater.username + " tried to rate a user not in the database!");
 
       user.count++;
       user.total = Number(user.total) + Number(reaction.emoji.identifier[0]);
@@ -130,6 +137,13 @@ client.on('messageReactionAdd', (reaction, rater) => {
         
           user.save(err => {
             if(err) return console.error(err);
+           
+            let avg = user.total / user.count;
+            
+            let name = reaction.message.member.nickname;
+            let newName = name.substring(0, name.length - 8) + ": " + avg.toFixed(2) + "/5";
+            member.setNickname(newName, "rating update");
+
             console.log(rater.username + " rated " + reaction.message.author.username + "'s message with a " + reaction.emoji.identifier[0]);
           });
         }
